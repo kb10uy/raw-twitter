@@ -1,0 +1,51 @@
+[package]
+name = "raw-twitter"
+version = "0.1.0"
+authors = ["Yuu Kobayashi <kb10uy@kb10uy.org>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies.async-std]
+version = "1.6"
+features = ["attributes"]
+
+[dependencies.surf]
+version = "2.0"
+
+[dependencies.log]
+version = "0.4"
+
+[dependencies.pretty_env_logger]
+version = "0.4"
+
+[dependencies.clap]
+version = "3.0.0-beta.2"
+
+[dependencies.envy]
+version = "0.4"
+
+[dependencies.rand]
+version = "0.7"
+
+[dependencies.hmac]
+version = "0.10"
+
+[dependencies.sha-1]
+version = "0.9"
+
+[dependencies.serde]
+version = "1.0"
+features = ["derive"]
+
+[dependencies.serde_json]
+version = "1.0"
+
+[dependencies.percent-encoding]
+version = "2.1"
+
+[dependencies.dotenv]
+version = "0.15"
+
+[dependencies.base64]
+version = "0.13"

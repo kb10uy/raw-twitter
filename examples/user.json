@@ -1,0 +1,7 @@
+{
+  "endpoint": "users/show.json",
+  "method": "GET",
+  "parameters": {
+    "screen_name": "kb10uy"
+  }
+}

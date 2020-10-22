@@ -1,0 +1,7 @@
+{
+  "endpoint": "account_activity/all/:env_name/webhooks",
+  "method": "GET",
+  "parameters": {
+    "url": "https://example.com"
+  }
+}
