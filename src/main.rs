@@ -10,7 +10,7 @@ use clap::Clap;
 use dotenv::dotenv;
 use envy::from_env;
 use hmac::{Hmac, Mac, NewMac};
-use log::{error, warn};
+use log::{error, warn, debug};
 use percent_encoding::{utf8_percent_encode, AsciiSet, CONTROLS};
 use rand::{seq::SliceRandom, thread_rng};
 use serde::Deserialize;
@@ -102,7 +102,7 @@ impl ToString for Method {
             Method::Get => "GET".into(),
             Method::Post => "POST".into(),
             Method::Put => "PUT".into(),
-            Method::Delete => "GET".into(),
+            Method::Delete => "DELETE".into(),
         }
     }
 }
@@ -130,6 +130,11 @@ async fn main() -> AnyResult<()> {
         error!("Failed to gather Twitter API key information: {}", e);
         e
     })?;
+    debug!("Consumer Key: {}", environments.consumer_key);
+    debug!("Consumer Secret: {}", environments.consumer_secret);
+    debug!("Access Token: {}", environments.access_token);
+    debug!("Access Token Secret: {}", environments.access_token_secret);
+
     let template: Template = {
         let mut reader = BufReader::new(File::open(&arguments.template_file).await?);
         let mut json = String::with_capacity(8192);
@@ -221,6 +226,15 @@ async fn main() -> AnyResult<()> {
     let encoded_signature = base64_encode(hmac_result);
     oauth_params.insert("oauth_signature", encoded_signature);
 
+    debug!("OAuth parameters");
+    for (key, value) in &oauth_params {
+        debug!("{}: {}", key, value);
+    }
+    debug!("General parameters");
+    for (key, value) in &request_params {
+        debug!("{}: {}", key, value);
+    }
+
     let oauth_header: Vec<_> = oauth_params
         .iter()
         .map(|(k, v)| format!("{}=\"{}\"", k, utf8_percent_encode(v, RFC3986_ESCAPES)))
@@ -232,14 +246,17 @@ async fn main() -> AnyResult<()> {
         Method::Post => surf::post(endpoint_url),
         Method::Put => surf::put(endpoint_url),
         Method::Delete => surf::delete(endpoint_url),
+    }
+    .header(
+        "Authorization",
+        format!("OAuth {}", oauth_header.join(", ")),
+    );
+
+    let mut response = if request_params.is_empty() {
+        request.await?
+    } else {
+        request.query(&request_params)?.await?
     };
-    let mut response = request
-        .query(&request_params)?
-        .header(
-            "Authorization",
-            format!("OAuth {}", oauth_header.join(", ")),
-        )
-        .await?;
     let body = response.body_string().await?;
 
     println!("{}", body);
